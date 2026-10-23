@@ -1,0 +1,123 @@
+digraph Arquitectura {
+  rankdir=TB;
+  fontname="Helvetica";
+  node [fontname="Helvetica", fontsize=11, shape=box, style="rounded,filled", color="#444444"];
+  edge [fontname="Helvetica", fontsize=9, color="#666666"];
+  graph [fontsize=16, labelloc=t, label="Ecosistema de Automatización IA Autónomo — Transporte Sechi\nElaboración de Presupuestos de Rigging de Equipos Médicos", splines=true, nodesep=0.35, ranksep=0.55];
+
+  // ---------- Estilos por tipo ----------
+  node [fillcolor="#eef3fb"];
+
+  // ---------- Intake ----------
+  subgraph cluster_intake {
+    label="1. Intake"; style=rounded; color="#2b5fa8"; fontcolor="#2b5fa8";
+    form [label="Formulario público\n(Form Trigger)", shape=cds, fillcolor="#cfe0f7"];
+    adapt [label="Adaptar + sanear datos\n(Code)"];
+    crear [label="Crear presupuesto en Airtable\nStatus: Recibido"];
+    gatos [label="¿Datos completos?\n(IF, incl. Email_Cliente)", shape=diamond, fillcolor="#fff3cd"];
+  }
+
+  // ---------- Cálculo ----------
+  subgraph cluster_calculo {
+    label="2. Cálculo (geocodificación, Km, precio, vehículo, flete, total)"; style=rounded; color="#2b8a5f"; fontcolor="#2b8a5f";
+    lista [label="Identificar lista de precios\n(GE / Tecnoimagen / General)"];
+    geo [label="Geocodificar + validar\ndirecciones\n(OpenRouteService)"];
+    km [label="Calcular Km ida y vuelta\n(OpenRouteService Directions,\nperfil driving-hgv)"];
+    rigging [label="Resolver precio de Rigging\n+ vehículo/acoplado candidatos\n(Airtable Search)"];
+    cal [label="Chequear disponibilidad\ny reservar vehículo+acoplado\n(Google Calendar)"];
+    flete [label="Calcular Valor de Flete\n(Airtable Search)"];
+    total [label="Calcular Valor Total\n+ validar moneda"];
+  }
+
+  // ---------- Decisión humana / ajustes ----------
+  subgraph cluster_hitl1 {
+    label="3. Ajustes con decisión humana (HITL)"; style=rounded; color="#a8622b"; fontcolor="#a8622b";
+    terceros [label="¿Necesita terceros /\nvisita de acceso?\n(gate HITL — pausa y\nespera confirmación)", shape=diamond, fillcolor="#fde3cf"];
+    recargo [label="Recargo fin de semana\n/ feriado\n(regla + Google Calendar)"];
+    terminado [label="Valor Total final\nStatus: Calculo terminado"];
+  }
+
+  // ---------- Salidas ----------
+  subgraph cluster_doc {
+    label="4. Documento final del presupuesto"; style=rounded; color="#6a2ba8"; fontcolor="#6a2ba8";
+    docdata [label="Armar datos del documento\n(Code)"];
+    doccopy [label="Copiar plantilla real\n(Google Drive)"];
+    docreplace [label="Reemplazar 36 campos\n(Google Slides API)"];
+  }
+
+  subgraph cluster_redaccion {
+    label="5. Redacción + HITL + envío"; style=rounded; color="#2b5fa8"; fontcolor="#2b5fa8";
+    idea [label="Armar \"Idea Semilla\"\n(Code)"];
+    rag [label="Recuperar criterios\nde redacción (RAG)\n(Airtable Search)"];
+    gemini [label="Redactar borrador\nGemini Flash-Lite", shape=component, fillcolor="#d7cdf0"];
+    aprob [label="Aprobación humana\ndel borrador (HITL)", shape=diamond, fillcolor="#fde3cf"];
+    gmail [label="Enviar presupuesto\npor Gmail", shape=cds, fillcolor="#cfe0f7"];
+  }
+
+  // ---------- Excepciones ----------
+  subgraph cluster_excepciones {
+    label="6. Excepciones de negocio (pausan y avisan por Slack)"; style=rounded; color="#a82b3f"; fontcolor="#a82b3f";
+    exc1 [label="Datos incompletos", shape=note, fillcolor="#f8d7da"];
+    exc2 [label="Revisar direcciones", shape=note, fillcolor="#f8d7da"];
+    exc3 [label="Pendiente cotización\nmanual", shape=note, fillcolor="#f8d7da"];
+    exc4 [label="Sin vehículo\ndisponible", shape=note, fillcolor="#f8d7da"];
+    exc5 [label="Revisión de moneda", shape=note, fillcolor="#f8d7da"];
+    exc6 [label="Esperando terceros /\nEsperando visita", shape=note, fillcolor="#f8d7da"];
+  }
+
+  reintentos [label="Mecanismo de reintento\n1 Trigger (poll 1 min) + Switch\nde 6 ramas — retoma cada\nexcepción desde su punto exacto,\nsin reintentar errores técnicos solo", shape=box3d, fillcolor="#fff0b3"];
+
+  // ---------- Rutas de error técnico ----------
+  subgraph cluster_errores {
+    label="7. Rutas de error técnico (6 llamadas externas)"; style=rounded; color="#a82b3f"; fontcolor="#a82b3f";
+    errlog [label="Error Log (Airtable)\n+ aviso Slack técnico\n(alimenta KPI de tasa de\nerrores del Dashboard)", fillcolor="#f8d7da"];
+  }
+
+  // ---------- Destinos de datos ----------
+  subgraph cluster_datos {
+    label="Almacenes de datos y canales"; style=rounded; color="#555555"; fontcolor="#555555";
+    airtable [label="Airtable\npresupuestos · flota · precios ·\nError Log\n(Empleados excluida del\nenlace público)", shape=cylinder, fillcolor="#e6e6e6"];
+    gcal [label="Google Calendar\n\"Flota Sechi\"", shape=cylinder, fillcolor="#e6e6e6"];
+    gdrive [label="Google Drive/Slides\ndocumento final", shape=cylinder, fillcolor="#e6e6e6"];
+    slack [label="Slack\n(avisos de negocio +\navisos técnicos)", shape=cylinder, fillcolor="#e6e6e6"];
+  }
+
+  // ---------- Flujo principal ----------
+  form -> adapt -> crear -> gatos;
+  gatos -> exc1 [label="faltan datos"];
+  gatos -> lista [label="completos"];
+  lista -> geo -> km -> rigging;
+  geo -> exc2 [label="no confiable"];
+  rigging -> exc3 [label="sin precio"];
+  rigging -> cal -> flete -> total;
+  cal -> exc4 [label="nadie libre"];
+  total -> exc5 [label="monedas no\ncoinciden"];
+  total -> terceros [label="monedas OK"];
+  terceros -> exc6 [label="falta decisión\nhumana"];
+  terceros -> recargo -> terminado;
+
+  terminado -> docdata -> doccopy -> docreplace;
+  terminado -> idea;
+  idea -> rag -> gemini -> aprob;
+  aprob -> gmail [label="aprobado"];
+
+  exc1 -> reintentos [style=dashed, dir=back, label="corrección\nmanual"];
+  exc2 -> reintentos [style=dashed, dir=back];
+  exc3 -> reintentos [style=dashed, dir=back];
+  exc4 -> reintentos [style=dashed, dir=back];
+  exc5 -> reintentos [style=dashed, dir=back];
+  exc6 -> reintentos [style=dashed, dir=back];
+  reintentos -> lista [style=dashed, label="retoma en el\npunto exacto"];
+
+  geo -> errlog [style=dotted, color="#a82b3f"];
+  km -> errlog [style=dotted, color="#a82b3f"];
+  cal -> errlog [style=dotted, color="#a82b3f"];
+  recargo -> errlog [style=dotted, color="#a82b3f"];
+
+  crear -> airtable [style=dotted];
+  total -> airtable [style=dotted];
+  cal -> gcal [style=dotted];
+  docreplace -> gdrive [style=dotted];
+  exc1 -> slack [style=dotted];
+  errlog -> slack [style=dotted];
+}
