@@ -13,7 +13,6 @@ Desde que un presupuesto entra por un formulario público hasta que el presupues
 * **`docs/manual-operativo-estructuras-de-datos.md`** — esquema de las tablas de Airtable vinculadas entre sí y los esquemas JSON reales de cada integración (formulario, geocodificación, cálculo de ruta, calendario de flota, documento final).
 * **`docs/matriz-optimizacion-costos-ia.md`** — qué tarea usa IA y cuál no, por qué, y la comparación de costo del modelo elegido para la única tarea que la necesita.
 * **`docs/seguridad-y-resiliencia.md`** — minimización de datos, puntos de HITL, rutas de error con log, mecanismo de reintento, catálogo de bugs reales encontrados y el repaso de las 3 preguntas del check de seguridad, verificado contra el workflow real.
-* **`docs/guion-video-demo.md`** — guion minuto a minuto para grabar el video demo de 3 minutos.
 * **`evidencia/`** — capturas reales del Test de Estrés (ver sección abajo).
 
 ## Decisión final (2026-10-23)
