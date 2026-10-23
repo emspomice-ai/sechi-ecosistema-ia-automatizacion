@@ -12,7 +12,7 @@ Desde que un presupuesto entra por un formulario público hasta que el presupues
 - **`workflow/`** — el archivo `.json` exportado del workflow real de n8n (100 nodos).
 - **`docs/Documentacion-Tecnica-Ecosistema-Sechi.pdf`** (y `arquitectura.png` / `.dot` fuente) — documentación técnica consolidada del ecosistema: mapa de arquitectura (triggers, routers, llamadas a APIs externas, el único punto donde se usa un modelo de IA, los puntos de decisión humana (HITL), el mecanismo de reintento y las rutas de error técnico), manual operativo de estructuras de datos (esquema de Airtable y esquemas JSON de cada integración), estrategia de optimización de costos de IA y seguridad/privacidad/resiliencia del sistema.
 - **`evidencia/`** — capturas reales del Test de Estrés (ver sección abajo).
-- **`video-demo/Video-Demo-Sechi-Ecosistema-IA.mp4`** — demo de 3 minutos sobre una ejecución real del workflow (no simulada), sin intervención manual salvo en los puntos de HITL (archivo descargable).
+- **`Video-Demo-Sechi-Ecosistema-IA.mp4`** — demo de 3 minutos sobre una ejecución real del workflow (no simulada), sin intervención manual salvo en los puntos de HITL (archivo descargable).
 
 ## Decisión final (2026-10-23)
 
