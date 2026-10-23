@@ -1,4 +1,3 @@
-[README.md](https://github.com/user-attachments/files/33883320/README.md)
 # Sechi Medical Rigging — Ecosistema de Automatización IA Autónomo
 
 Automatización de punta a punta del proceso real de **Elaboración de Presupuestos** de rigging de equipos médicos de alta complejidad en Transporte Sechi, construida en n8n sobre una base de Airtable.
